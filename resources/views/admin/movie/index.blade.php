@@ -6,25 +6,25 @@
             <a href="{{ route('admin.movies.trash') }}" class="btn btn-secondary me-2">data sampah</a>
             <a href="{{ route('admin.movies.export') }}" class="btn btn-secondary me-2">Export (.xlsx)</a>
             <a href="{{ route('admin.movies.create') }}" class="btn btn-success">Tambah data</a>
+            @if (Session::get('success'))
+                <div class="alert alert-success">{{ Session::get('success') }}
+                </div>
+            @endif
+            @if (Session::get('error'))
+                <div class="alert alert-danger">{{ Session::get('error') }}</div>
+            @endif
         </div>
-        @if (Session::get('success'))
-            <div class="alert alert-success">{{ Session::get('success') }}
-            </div>
-        @endif
-        @if (Session::get('error'))
-            <div class="alert alert-danger">{{ Session::get('error') }}</div>
-        @endif
         <h5 class="mb-3">Data Film</h5>
         <table class="table table-bordered" id="tableMovie">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>poster</th>
-                <th>judul film</th>
-                <th>status aktif</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>poster</th>
+                    <th>judul film</th>
+                    <th>status aktif</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
         </table>
         <!-- Modal -->
         <div class="modal fade" id="modalDetail" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
@@ -48,22 +48,47 @@
 @endsection
 
 @push('script')
-    <script>    
+    <script>
         $(function() {
             $("#tableMovie").DataTable({
                 processing: true,
                 serverSide: true,
-                ajax:"{{ route('admin.movies.datatables') }}",
-                columns: [
-                    {data: 'DT_RowIndex',name: 'DT_RowIndex',orderable:false,searchable:false},
-                    {data: 'imgPoster',name: 'imgPoster',orderable:true,searchable:false},
-                    {data: 'title',name: 'title',orderable:true,searchable:true},
-                    {data: 'activeBadge',name: 'activeBadge',orderable:true,searchable:false},
-                    {data: 'btnActions',name: 'btnActions',orderable:true,searchable:false},
-                    
+                ajax: "{{ route('admin.movies.datatables') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'imgPoster',
+                        name: 'imgPoster',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'title',
+                        name: 'title',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'activeBadge',
+                        name: 'activeBadge',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'btnActions',
+                        name: 'btnActions',
+                        orderable: true,
+                        searchable: false
+                    },
+
                 ]
             })
         })
+
         function showmodal(item) {
             let image = "{{ asset('storage') }}" + "/" + item.poster;
             let content = `

@@ -12,7 +12,7 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="tablePromo">
             <thead>
                 <tr>
                     <th>#</th>
@@ -23,32 +23,26 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($promos as $key => $promo)
-                    <tr>
-                        <td>{{ $key + 1 }}</td>
-                        <td>{{ $promo->promo_code }}</td>
-                        <td>{{ $promo->type }}</td>
-                        <td>
-                            @if ($promo->type == 'percent')
-                                {{ $promo->discount }}%
-                            @else
-                                Rp {{ number_format($promo->discount, 0, ',', '.') }}
-                            @endif
-                        </td>
-                <td class="d-flex">
-                    <a href="{{ route('staff.promos.edit',$promo->id)}}" class="btn btn-primary">edit</a>
-                    <form action="{{ route('staff.promos.destroy',$promo->id) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                    <button class="btn btn-danger ms-2">hapus</button>
-                    </form>
-
-                            </button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
+                
             </tbody>
         </table>
     </div>
 @endsection
+@push('script')
+<script>
+$(function() {
+    $("#tablePromo").DataTable({   
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route('staff.promos.datatables') }}',
+        columns: [
+                    {data: 'DT_RowIndex',name: 'DT_RowIndex',orderable:false,searchable:false},
+                    {data: 'promo_code',name: 'promo_code',orderable:true,searchable:true},
+                    {data: 'type',name: 'type',orderable:true,searchable:true},
+                    {data: 'discount',name: 'discount',orderable:true,searchable:true},
+                    {data: 'btnActions',name: 'btnActions',orderable:true,searchable:false},
+                ]
+    });
+});
+</script>
+@endpush

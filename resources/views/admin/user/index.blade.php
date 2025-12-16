@@ -38,7 +38,7 @@
                     {data: 'DT_RowIndex',name: 'DT_RowIndex',orderable:false,searchable:false},
                     {data: 'name',name: 'name',orderable:true,searchable:true},
                     {data: 'email',name: 'email',orderable:true,searchable:false},
-                    {data: 'role',name: 'role',orderable:true,searchable:false},
+                    {data: 'role',name: 'role',orderable:true,searchable:true},
                     {data: 'btnActions',name: 'btnActions',orderable:true,searchable:false},
                     
                 ]

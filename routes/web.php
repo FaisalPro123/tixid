@@ -5,16 +5,34 @@ use App\Http\Controllers\MovieController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\ScheduleController;
-use App\Models\Cinema;
-use App\Models\Promo;
-use App\Models\Schedule;
+use App\Http\Controllers\TicketController;
+use App\Models\Ticket;
+use Faker\Guesser\Name;
 use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', [MovieController::class, 'home'])->name('home');
-Route::get('/schedules/movies_id)', [MovieController::class, 'movieSchedules'])->name('movies.schedules');
+Route::get('/schedules/movies_id', [MovieController::class, 'movieSchedules'])->name('movies.schedules');
 Route::get('/movies/active', [MovieController::class, 'homeMovies'])->name('home.movies.active');
 Route::get('/detail/{id}', [MovieController::class, 'movieSchedules'])->name('detail');
+
+Route::middleware('isUser')->group(function () {
+    Route::get('/Schedules/{ScheduleId}/hours/{hoursId}/ticket', [TicketController::class, 'showSeats'])->name('schedules.show_seats');
+
+    Route::prefix('/ticket')->name('ticket.')->group(function () {
+        Route::post('/', [TicketController::class, 'store'])->name('store');
+        Route::get('/{ticketId}/order', [TicketController::class, 'ticketOrderPage'])->name('order');
+        //pembuatan bercode
+        Route::post('/barcode', [TicketController::class, 'createBarcode'])->name('barcode');
+        Route::get('/{ticketId}/payment', [TicketController::class, 'ticketPaymentPage'])->name('payment.page');
+        Route::patch('/{ticketId}/payment/update', [TicketController::class, 'updateStatusTicket'])->name('payment.update');
+        Route::get('/{ticketId}/show', [TicketController::class, 'show'])->name('show');
+        Route::get('/{ticketId}/export.pdf', [TicketController::class, 'exportPdf'])->name('export.pdf');
+        Route::get('/list', [TicketController::class, 'index'])->name('index');
+    });
+});
+Route::get('/cinema/list', [CinemaController::class, 'cinemaList'])->name('cinema.List');
+Route::get('/cinema/{cinema_id}/schedules', [CinemaController::class, 'cinemaSchedule'])->name('cinema.schedule');
 
 
 Route::get('/schedules/{id}', [ScheduleController::class, 'show'])->name('schedules.detail');
@@ -27,6 +45,7 @@ Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
 
 Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/tickets/chart',[TicketController::class,'dataChart'])->name('ticket.chart');
 
     // Dashboard
     Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
@@ -47,6 +66,7 @@ Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function ()
     });
     // Data Film
     Route::prefix('movies')->name('movies.')->group(function () {
+        Route::get('/datatables', [MovieController::class, 'chart'])->name('chart');
         Route::get('/datatables', [MovieController::class, 'datatables'])->name('datatables');
         Route::get('/', [MovieController::class, 'index'])->name('index');
         Route::get('/create', [MovieController::class, 'create'])->name('create');
@@ -63,7 +83,7 @@ Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function ()
 
     // Data Petugas
     Route::prefix('users')->name('users.')->group(function () {
-        
+
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('/datatables', [UserController::class, 'datatables'])->name('datatables');
         Route::get('/create', [UserController::class, 'create'])->name('create');
@@ -82,7 +102,7 @@ Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function ()
 
 
 
-// =================== STAFF ROUTES ===================
+// STAFF ROUTES 
 Route::middleware('isStaff')->prefix('staff')->name('staff.')->group(function () {
 
     // Dashboard Staff
@@ -106,6 +126,7 @@ Route::middleware('isStaff')->prefix('staff')->name('staff.')->group(function ()
     Route::prefix('/schedules')->name('schedules.')->group(function () {
         Route::get('/', [ScheduleController::class, 'index'])->name('index');
         Route::get('/datatables', [ScheduleController::class, 'datatables'])->name('datatables');
+        Route::get('/create', [ScheduleController::class, 'create'])->name('create');
         Route::post('store', [ScheduleController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [ScheduleController::class, 'edit'])->name('edit');
         Route::patch('/update/{id}', [ScheduleController::class, 'update'])->name('update');

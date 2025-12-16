@@ -166,4 +166,18 @@ class CinemaController extends Controller
     {
         return Excel::download(new CinemaExport, 'cinema.xlsx'); // Pastikan new CinemaExport
     }
+
+    public function cinemaList()
+    {
+        $cinemas = Cinema::all();
+        return view('schedule.cinema',compact('cinemas'));
+    }
+
+    public function cinemaSchedule($cinema_id)
+    {
+        $schedules = Schedule::where('cinema_id', $cinema_id)->with('movie')->whereHas('movie',function($q) {
+            $q->where('actived',1);
+        })->get();
+        return view('schedule.cinema-schedules', compact('schedules'));
+    }
 }

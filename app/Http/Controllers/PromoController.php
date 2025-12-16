@@ -6,7 +6,6 @@ use App\Models\Promo;
 use Illuminate\Http\Request;
 use App\Exports\PromoExport;
 use Maatwebsite\Excel\Facades\Excel;
-use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\Facades\DataTables;
 
 class PromoController extends Controller
@@ -15,6 +14,36 @@ class PromoController extends Controller
     {
         $promos = Promo::all();
         return view('staff.promo.index', compact('promos'));
+    }
+        public function datatables()
+    {
+        $promo = Promo::query()->get();;
+
+        return DataTables::of($promo)
+         ->addIndexColumn()   
+
+            ->addColumn('discount', function ($promo) {
+                if ($promo['type']=='rupiah') {
+                    return 'Rp.'. number_format($promo['discount'],0, ',','.');
+                } else {
+                    return '' . $promo['discount'] . '%' ;
+                }
+            })
+            ->addIndexColumn()   
+
+            ->addColumn('btnActions', function ($promo) {
+                $btnEdit = '<a href="' . route('staff.promos.edit', $promo['id']) . '" class="btn btn-primary me-2">edit</a>';
+
+                $btnDelete = '<form action="' . route('staff.promos.destroy', $promo['id']) . '" method="POST">' .
+                    csrf_field() .
+                    method_field('DELETE') . '
+                            <button class="btn btn-danger">hapus</button>
+                        </form>';
+
+                return '<div class="d-flex gap-2">'  . $btnEdit . $btnDelete . '</div>';
+            })
+            ->rawColumns(['btnActions', 'discount'])
+            ->make(true);
     }
 
     public function create()

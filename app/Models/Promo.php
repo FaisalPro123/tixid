@@ -15,4 +15,9 @@ class Promo extends Model
         'discount',
         'actived',
     ];
+
+    public function tickets()
+    {
+        return $this->hashMany(Ticket::class);
+    }
 }

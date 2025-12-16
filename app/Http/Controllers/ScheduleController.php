@@ -8,7 +8,6 @@ use App\Models\Cinema;
 use Illuminate\Http\Request;
 use App\Exports\ScheduleExport;
 use Maatwebsite\Excel\Facades\Excel;
-use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\Facades\DataTables;
 
 class ScheduleController extends Controller
@@ -26,17 +25,31 @@ class ScheduleController extends Controller
 
     }
 
-       public function datatables()
+    public function datatables()
     {
-        $schedules = Schedule::query();
+        $schedule = Schedule::with(['cinema','movie'])->get();
+        return DataTables::of($schedule)
+            ->addIndexColumn()
+            ->addColumn('cinema_name', function ($schedule) {
+                return $schedule->cinema->name;
+            })
+            ->addColumn('movie_title', function ($schedule) {
+                return $schedule->movie->title;
+            })
+            ->addColumn('price', function ($schedule){
+                return 'Rp. ' . number_format($schedule->price,0,',','.');
+            })
+            ->addColumn('hours', function($schedule){
+                $list = '';
+                foreach($schedule->hours as $hour) {
+                    $list .='<li>'. $hour .'</li>';
+                }
+                return '<ul>' . $list . '</ul>';
+            })
+             ->addColumn('btnActions', function ($schedule) {
+                $btnEdit = '<a href="' . route('staff.schedules.edit', $schedule['id']) . '" class="btn btn-primary me-2">edit</a>';
 
-        return DataTables::of($schedules)
-            ->addIndexColumn()   
-
-            ->addColumn('btnActions', function ($schedules) {
-                $btnEdit = '<a href="' . route('admin.schedules.edit', $schedules['id']) . '" class="btn btn-primary me-2">edit</a>';
-
-                $btnDelete = '<form action="' . route('admin.schedules.delete', $schedules['id']) . '" method="POST">' .
+                $btnDelete = '<form action="' . route('staff.schedules.delete', $schedule['id']) . '" method="POST">' .
                     csrf_field() .
                     method_field('DELETE') . '
                             <button class="btn btn-danger">hapus</button>
@@ -44,7 +57,7 @@ class ScheduleController extends Controller
 
                 return '<div class="d-flex gap-2">'  . $btnEdit . $btnDelete . '</div>';
             })
-            ->rawColumns(['btnActions'])
+            ->rawColumns(['btnActions', 'hours', 'price', 'cinema_name', 'movie_title'])
             ->make(true);
     }
 
@@ -53,7 +66,7 @@ class ScheduleController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**

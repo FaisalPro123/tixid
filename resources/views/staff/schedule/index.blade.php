@@ -17,6 +17,7 @@
         
 @endif
     <table class="table table-bordered" id="tableschedules">
+        <thead>
         <tr>
             <th>#</th>
             <th>Nama bioskop</th>
@@ -25,30 +26,8 @@
             <th>jam tayang</th>
             <th>aksi</th>
         </tr>
-        @foreach ($schedules as $key => $schedule)
-            <tr>
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $schedule['cinema']['name'] ?? '' }}</td>
-                <td>{{ $schedule['movie']['title'] ?? ''}}</td>
-                <td>{{ $schedule->price }}</td>
-                <td>
-                    <ul>
-                        @foreach ($schedule['hours'] as $hours)
-                            <li>{{ $hours }}</li>
-                        @endforeach
-                    </ul>
-                </td>
-
-                <td class="d-flex">
-                    <a href="{{ route('staff.schedules.edit',$schedule->id)}}" class="btn btn-primary">edit</a>
-                    <form action="{{ route('staff.schedules.delete',$schedule->id) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                    <button class="btn btn-danger ms-2">hapus</button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
+        </thead>
+        
     </table>
     {{-- modal --}}
     <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
@@ -120,35 +99,28 @@
 @push('script')
     <script>    
         $(function() {
-            $("#tableschedules").DataTable({
+            $('#tableschedules').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax:"{{ route('admin.schedules.datatables') }}",
+                ajax:'{{ route('staff.schedules.datatables') }}',
                 columns: [
                     {data: 'DT_RowIndex',name: 'DT_RowIndex',orderable:false,searchable:false},
-                    {data: 'cinema',name: 'cinema',orderable:true,searchable:true},
-                    {data: 'movie',name: 'movie',orderable:true,searchable:false},
-                    {data: 'price',name: 'price',orderable:true,searchable:false},
-                    {data: 'hours',name: 'hours',orderable:true,searchable:false},
+                    {data: 'cinema_name',name: 'cinema_name',orderable:true,searchable:true},
+                    {data: 'movie_title',name: 'movie_title',orderable:true,searchable:false},
+                    {data: 'price',name: 'price',orderable:true,searchable:true},
+                    {data: 'hours',name: 'hours',orderable:true,searchable:true},
                     {data: 'btnActions',name: 'btnActions',orderable:true,searchable:false},
-                    
                 ]
     });
 });
-</script>
-@endpush
-@endsection
-    <script>
         function addInput() {
             let content = '<input type="time" name="hours[]" class="form-control my-3">';
             let wadah = document.querySelector('#additionalinput');
             wadah.innerHTML += content;
         }
+        @if ($errors->any())
+                let modalAdd = document.querySelector('#modalAdd');
+                new boostrap.Modal(modalAdd).show();
+                @endif
     </script>
-    @if ($errors->any())
-        <script>
-            let modalAdd = document.querySelector('#modalAdd');
-            new boostrap.Modal(modalAdd).show();
-        </script>
-    @endif
 @endpush

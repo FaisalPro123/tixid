@@ -10,6 +10,7 @@ use App\Exports\MovieExport;
 use App\Models\Schedule;
 use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
 
 class MovieController extends Controller
 {
@@ -296,5 +297,15 @@ public function datatables()
     {
         $fileName = 'data-film.xlsx';
         return Excel::download(new MovieExport, $fileName);
+    }
+
+    public function chart()
+    {
+        $movieActive = Movie::where('actived',1)->count();
+        $movieNonActive = Movie::where('actived',0)->count();
+        $data = [$movieActive, $movieNonActive];
+        return response()->json([
+            'data' => $data
+        ]);
     }
 }
